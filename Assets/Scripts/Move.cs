@@ -7,9 +7,9 @@ public class Move : MonoBehaviour
 
     [SerializeField]
 
-    float moveSpeed = 5f;
-    float previousDistanceToTouchPos;
-    float currentDistanceToTouchPos;
+    public float moveSpeed = 5f;
+    public float previousDistanceToTouchPos;
+    public float currentDistanceToTouchPos;
 
     bool isMoving = false;
 
@@ -32,7 +32,19 @@ public class Move : MonoBehaviour
             currentDistanceToTouchPos = (touchPosition - transform.position).magnitude;
         }
 
-        if(Input.touchCount > 0)
+#if UNITY_EDITOR
+        if (Input.GetKeyDown(KeyCode.Mouse0))
+        {
+            previousDistanceToTouchPos = 0;
+            currentDistanceToTouchPos = 0;
+            isMoving = true;
+            touchPosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+            touchPosition.z = 0;
+            whereToMove = (touchPosition - transform.position).normalized;
+            rb.velocity = new Vector2(whereToMove.x * moveSpeed, whereToMove.y * moveSpeed);
+        }
+#else
+        if (Input.touchCount > 0)
         {
             touch = Input.GetTouch(0);
 
@@ -47,7 +59,7 @@ public class Move : MonoBehaviour
                 rb.velocity = new Vector2(whereToMove.x * moveSpeed, whereToMove.y * moveSpeed);
             }
         }
-
+#endif
 
         if(currentDistanceToTouchPos > previousDistanceToTouchPos)
         {
@@ -58,17 +70,6 @@ public class Move : MonoBehaviour
         if (isMoving)
         {
             previousDistanceToTouchPos = (touchPosition - transform.position).magnitude;
-        }
-
-        if (touch.phase == TouchPhase)
-        {
-            previousDistanceToTouchPos = 0;
-            currentDistanceToTouchPos = 0;
-            isMoving = true;
-            touchPosition = Camera.main.ScreenToWorldPoint(touch.position);
-            touchPosition.z = 0;
-            whereToMove = (touchPosition - transform.position).normalized;
-            rb.velocity = new Vector2(whereToMove.x * moveSpeed, whereToMove.y * moveSpeed);
         }
 
     }
